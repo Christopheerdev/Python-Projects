@@ -9,7 +9,7 @@ Projeto simples para gerenciamento de estoque utilizando Python.
 - consultar estoque
 - listar produtos
 
-## Conceitos utilizados
+## Métodos utilizados
 
 - funções
 - loops
