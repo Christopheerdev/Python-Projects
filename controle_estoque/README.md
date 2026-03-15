@@ -15,3 +15,4 @@ Projeto simples para gerenciamento de estoque utilizando Python.
 - loops
 - dicionários
 - lógica de programação
+- 
