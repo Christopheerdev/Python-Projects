@@ -1,4 +1,4 @@
-# Controle de Estoque em Python
+# Estoque em Python
 
 Projeto simples para gerenciamento de estoque utilizando Python.
 
