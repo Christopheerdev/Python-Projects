@@ -1,38 +1,76 @@
 from datetime import datetime
 
 # ============================
-#   SISTEMA DE ESTACIONAMENTO
+#   CLASSES (POO)
 # ============================
 
-moradores = {}
-inquilinos = {}
-visitantes = {}  # Armazena entrada, saída e valor da diária
+class Veiculo:
+    def __init__(self, placa):
+        self.placa = placa
 
-DIARIA = 20.00  # preço fixo da diária
+    def exibir(self):
+        return f"Placa: {self.placa}"
+
+
+class Morador(Veiculo):
+    def tipo(self):
+        return "Morador"
+
+
+class Inquilino(Veiculo):
+    def tipo(self):
+        return "Inquilino"
+
+
+class Visitante(Veiculo):
+    def __init__(self, placa):
+        super().__init__(placa)
+        self.entrada = datetime.now()
+        self.saida = None
+        self.valor = None
+
+    def registrar_saida(self, diaria):
+        self.saida = datetime.now()
+        self.valor = diaria
+
+    def tipo(self):
+        return "Visitante"
+
+    def exibir(self):
+        return f"""
+Placa: {self.placa}
+Entrada: {self.entrada}
+Saída: {self.saida}
+Valor: {self.valor}
+"""
+
+
+# ============================
+#   SISTEMA
+# ============================
+
+veiculos = []
+DIARIA = 20.0
 
 
 # ------------------------------------------
-# Função: Verifica categoria da placa
+# Buscar veículo
 # ------------------------------------------
-def verificar_placa(placa):
-    if placa in moradores:
-        return "morador"
-    elif placa in inquilinos:
-        return "inquilino"
-    elif placa in visitantes:
-        return "visitante"
-    else:
-        return None
+def buscar_veiculo(placa):
+    for v in veiculos:
+        if v.placa == placa:
+            return v
+    return None
 
 
 # ------------------------------------------
-# Função: Cadastrar nova placa
+# Cadastrar placa
 # ------------------------------------------
 def cadastrar_placa():
     print("\n--- Cadastro de Placas ---")
     placa = input("Digite a placa: ").upper()
 
-    if verificar_placa(placa):
+    if buscar_veiculo(placa):
         print("❗ A placa já está cadastrada.")
         return
 
@@ -44,83 +82,80 @@ def cadastrar_placa():
     op = input("Escolha: ")
 
     if op == "1":
-        moradores[placa] = True
+        veiculos.append(Morador(placa))
         print("✔ Cadastrado como MORADOR.")
 
     elif op == "2":
-        inquilinos[placa] = True
+        veiculos.append(Inquilino(placa))
         print("✔ Cadastrado como INQUILINO.")
 
     elif op == "3":
-        visitantes[placa] = {
-            "entrada": datetime.now(),
-            "saida": None,
-            "valor": None
-        }
-        print("✔ Visitante registrado com horário de entrada.")
-        print(f"Entrada: {visitantes[placa]['entrada']}")
+        v = Visitante(placa)
+        veiculos.append(v)
+        print("✔ Visitante registrado!")
+        print(f"Entrada: {v.entrada}")
 
     else:
         print("❗ Opção inválida.")
 
 
 # ------------------------------------------
-# Registrar saída de visitante
+# Registrar saída
 # ------------------------------------------
 def registrar_saida():
     print("\n--- Registrar Saída ---")
-    placa = input("Digite a placa do visitante: ").upper()
+    placa = input("Digite a placa: ").upper()
 
-    if placa not in visitantes:
-        print("❗ Visitante não encontrado.")
+    v = buscar_veiculo(placa)
+
+    if not v:
+        print("❗ Veículo não encontrado.")
         return
 
-    visitantes[placa]["saida"] = datetime.now()
-    visitantes[placa]["valor"] = DIARIA
-
-    print("\n✔ Saída registrada!")
-    print(f"Entrada: {visitantes[placa]['entrada']}")
-    print(f"Saída:   {visitantes[placa]['saida']}")
-    print(f"Valor da diária: R$ {DIARIA:.2f}")
+    if isinstance(v, Visitante):
+        v.registrar_saida(DIARIA)
+        print("\n✔ Saída registrada!")
+        print(v.exibir())
+    else:
+        print("❗ Apenas visitantes possuem saída registrada.")
 
 
 # ------------------------------------------
 # Consultar placa
 # ------------------------------------------
 def consultar_placa():
-    print("\n--- Consulta de Placas ---")
+    print("\n--- Consulta de Placa ---")
     placa = input("Digite a placa: ").upper()
 
-    categoria = verificar_placa(placa)
+    v = buscar_veiculo(placa)
 
-    if not categoria:
+    if not v:
         print("❗ Placa não encontrada.")
         return
 
-    print(f"\nCategoria: {categoria.upper()}")
+    print(f"\nCategoria: {v.tipo()}")
 
-    if categoria == "visitante":
-        dados = visitantes[placa]
-        print(f"Entrada: {dados['entrada']}")
-        print(f"Saída:   {dados['saida']}")
-        print(f"Valor:   {dados['valor']}")
+    if isinstance(v, Visitante):
+        print(v.exibir())
+    else:
+        print(v.exibir())
 
 
 # ------------------------------------------
-# Histórico completo de visitantes
+# Listar visitantes
 # ------------------------------------------
 def listar_visitantes():
     print("\n--- Histórico de Visitantes ---")
 
-    if not visitantes:
-        print("Nenhum visitante cadastrado.")
-        return
+    encontrou = False
 
-    for placa, dados in visitantes.items():
-        print("\nPlaca:", placa)
-        print("Entrada:", dados["entrada"])
-        print("Saída:", dados["saida"])
-        print("Valor pago:", dados["valor"])
+    for v in veiculos:
+        if isinstance(v, Visitante):
+            print(v.exibir())
+            encontrou = True
+
+    if not encontrou:
+        print("Nenhum visitante cadastrado.")
 
 
 # ------------------------------------------
@@ -151,5 +186,9 @@ def menu():
         else:
             print("❗ Opção inválida.")
 
+
+# ============================
+# EXECUÇÃO
+# ============================
 
 menu()
